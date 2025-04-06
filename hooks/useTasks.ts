@@ -53,7 +53,8 @@ export function useTasks({ projectId, initialFetch = true }: UseTasksOptions = {
       }
       
       const createdTask = await response.json();
-      setTasks(prev => [createdTask, ...prev]);
+      // Refresh the entire list after creating a task
+      await fetchTasks();
       return createdTask;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -76,9 +77,17 @@ export function useTasks({ projectId, initialFetch = true }: UseTasksOptions = {
       }
       
       const updatedTask = await response.json();
-      setTasks(prev => prev.map(task => 
-        task.id === taskId ? updatedTask : task
-      ));
+      
+      // If this is a task completion update, refresh the entire list
+      if (updates.is_completed !== undefined) {
+        await fetchTasks();
+      } else {
+        // Otherwise just update the local state for better performance
+        setTasks(prev => prev.map(task => 
+          task.id === taskId ? updatedTask : task
+        ));
+      }
+      
       return updatedTask;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -96,7 +105,8 @@ export function useTasks({ projectId, initialFetch = true }: UseTasksOptions = {
         throw new Error('Failed to delete task');
       }
       
-      setTasks(prev => prev.filter(task => task.id !== taskId));
+      // Refresh the entire list after deleting a task
+      await fetchTasks();
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
