@@ -32,8 +32,6 @@ export async function PATCH(
 ) {
   try {
     const taskId = params.id;
-
-    console.log('Received task ID:', taskId);
     
     if (!taskId) {
       return NextResponse.json({ error: 'Invalid task ID' }, { status: 400 });

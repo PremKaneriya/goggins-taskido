@@ -55,8 +55,6 @@ export async function createTask(taskData: {
      VALUES ($1, $2, $3, $4, $5, false) RETURNING *`,
     [title, description, due_date, priority, project_id]
   );
-
-  console.log('Created task:', result.rows[0]);
   
   return result.rows[0];
 }

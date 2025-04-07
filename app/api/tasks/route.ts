@@ -24,8 +24,6 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
-
-    console.log('Received data:', data);
     
     // Basic validation
     if (!data.title) {
@@ -34,8 +32,6 @@ export async function POST(request: NextRequest) {
     
     const task = await createTask(data);
 
-    console.log('Created task:', task);
-    
     return NextResponse.json(task, { status: 201 });
   } catch (error) {
     console.error('Error creating task:', error);
