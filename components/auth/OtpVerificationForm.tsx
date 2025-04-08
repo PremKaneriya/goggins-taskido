@@ -144,7 +144,7 @@ export default function OtpVerificationForm() {
             type="text"
             value={otp}
             onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, '').substring(0, 6))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg tracking-widest"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg tracking-widest text-gray-700"
             placeholder="000000"
             maxLength={6}
             required
