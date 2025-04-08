@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (projectId) {
       tasks = await getTasksByProject(parseInt(projectId));
     } else {
-      tasks = await getTasks();
+      tasks = await getTasks(request);
     }
     
     return NextResponse.json(tasks);
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
     
-    const task = await createTask(data);
+    const task = await createTask(request, data);
 
     return NextResponse.json(task, { status: 201 });
   } catch (error) {

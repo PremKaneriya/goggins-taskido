@@ -4,7 +4,7 @@ import { User } from '@/lib/db/users';
 import { randomBytes } from 'crypto';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
-import { verify } from 'jsonwebtoken';
+import { JwtPayload, verify } from 'jsonwebtoken';
 
 const SESSION_COOKIE_NAME = 'auth_session';
 const SESSION_EXPIRY_DAYS = 7;
@@ -94,19 +94,24 @@ export async function deleteSession(sessionToken: string): Promise<void> {
 
 export async function getUserFromRequest(req: NextRequest) {
   try {
-    // Get the auth token from cookies
-    const cookieStore = cookies();
-    const token = cookieStore.get('auth_session')?.value;
+    // Get the session token from cookies
+    const sessionToken = req.cookies.get('auth_session')?.value;
     
-    if (!token) {
+    if (!sessionToken) {
+      console.log('No session token found in cookies');
       return null;
     }
     
-    // Verify and decode the token
-    const decoded = verify(token, process.env.JWT_SECRET || 'fallback_secret');
+    // Use your existing function to get the user from the session
+    const user = await getUserFromSession(sessionToken);
     
-    // Return the user information from the token
-    return decoded as { email: string, userId: string };
+    if (!user) {
+      console.log('No valid user found for session token');
+      return null;
+    }
+    
+    // Return just the user ID
+    return user.id;
   } catch (error) {
     console.error('Error extracting user from request:', error);
     return null;

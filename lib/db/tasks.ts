@@ -12,12 +12,20 @@ export interface Task {
   created_at: Date;
 }
 
+import { getUserFromRequest } from "@/utils/session";
 import { query } from "./database";
+import { NextRequest } from "next/server";
 
 // Get all tasks
-export async function getTasks(): Promise<Task[]> {
+export async function getTasks(
+  req: NextRequest 
+): Promise<Task[]> {
+
+  const userId = await getUserFromRequest(req);
+
   const result = await query<Task>(
-    'SELECT * FROM tasks WHERE is_deleted = false AND is_completed = false ORDER BY created_at DESC'
+    'SELECT * FROM tasks WHERE is_deleted = false AND is_completed = false AND user_id = $1 ORDER BY created_at DESC',
+    [userId]
   );
   return result.rows;
 }
@@ -41,7 +49,9 @@ export async function getTaskById(taskId: string): Promise<Task | undefined> {
 }
 
 // Create a new task
-export async function createTask(taskData: {
+export async function createTask(
+  req: NextRequest,
+  taskData: {
   title: string;
   description?: string;
   due_date?: Date;
@@ -49,11 +59,17 @@ export async function createTask(taskData: {
   project_id?: number;
 }): Promise<Task> {
   const { title, description, due_date, priority = 0, project_id } = taskData;
+
+  const userId = await getUserFromRequest(req);
+
+  if (!userId) {
+    throw new Error('User not authenticated');
+  }
   
   const result = await query<Task>(
-    `INSERT INTO tasks (title, description, due_date, priority, project_id, is_completed)
-     VALUES ($1, $2, $3, $4, $5, false) RETURNING *`,
-    [title, description, due_date, priority, project_id]
+    `INSERT INTO tasks (title, description, due_date, priority, project_id, is_completed, user_id)
+     VALUES ($1, $2, $3, $4, $5, false, $6) RETURNING *`,
+    [title, description, due_date, priority, project_id, userId]
   );
   
   return result.rows[0];

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function OtpVerificationForm() {
   const [otp, setOtp] = useState('');
@@ -13,16 +13,19 @@ export default function OtpVerificationForm() {
   const [resendSuccess, setResendSuccess] = useState(false);
   
   const router = useRouter();
-  const searchParams = useSearchParams();
   
   useEffect(() => {
-    // Get email from URL query parameter
-    const emailParam = searchParams?.get('email') || '';
-    if (emailParam) {
-      setEmail(emailParam);
-    } else {
-      // Redirect back to login if no email provided
-      router.replace('/login');
+    // Alternative to useSearchParams - get email from URL directly
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const emailParam = urlParams.get('email') || '';
+      
+      if (emailParam) {
+        setEmail(emailParam);
+      } else {
+        // Redirect back to login if no email provided
+        router.replace('/login');
+      }
     }
     
     // Set up countdown timer
@@ -37,16 +40,16 @@ export default function OtpVerificationForm() {
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [searchParams, router]);
+  }, [router]);
   
   // Format countdown time as MM:SS
-  const formatTime = (time: number) => {
+  const formatTime = (time: any) => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     
     if (!otp || otp.length < 6) {
@@ -73,7 +76,7 @@ export default function OtpVerificationForm() {
       }
       
       // Redirect to dashboard or home page after successful login
-      router.push('/');
+      router.push('/tasks');
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
