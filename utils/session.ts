@@ -53,6 +53,7 @@ export async function getUserFromSession(sessionToken: string): Promise<User | n
   return userResult.rows[0] || null;
 }
 
+
 // Set session cookie
 export function setSessionCookie(sessionToken: string): void {
   const cookieStore = cookies();
