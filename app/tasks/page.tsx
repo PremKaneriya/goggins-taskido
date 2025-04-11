@@ -1,13 +1,40 @@
 // app/tasks/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TaskList from '@/components/tasks/TaskList';
 import TaskForm from '@/components/tasks/TaskForm';
 import { useTasks } from '@/hooks/useTasks';
+import { useRouter } from 'next/navigation';
 
 export default function TasksPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const res = await fetch("/api/auth/fetch-token", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        const data = await res.json();
+        if (data.token) {
+          setToken(data.token);
+          router.push("/tasks");
+        } else {
+          router.push("/login")
+        }
+      } catch (error) {
+        console.error("Error fetching token:", error);
+      }
+    };
+
+    fetchToken();
+  }, [router]);
+
   const { 
     tasks, 
     isLoading, 
