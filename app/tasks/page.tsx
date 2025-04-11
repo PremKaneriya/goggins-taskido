@@ -12,6 +12,7 @@ export default function TasksPage() {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
 
+
   useEffect(() => {
     const fetchToken = async () => {
       try {
@@ -84,13 +85,14 @@ export default function TasksPage() {
     <div className="max-w-4xl mx-auto px-4 py-12 bg-gray-50 min-h-screen">
       <div className="mb-12 text-center">
         <h1 className="text-4xl font-bold text-gray-900 uppercase tracking-widest">Goggins Taskido</h1>
-        <p className="text-gray-700 mt-2 font-medium uppercase">WHO’S GONNA CARRY THE BOATS?</p>
+        <p className="text-gray-700 mt-2 font-medium uppercase">WHO'S GONNA CARRY THE BOATS?</p>
       </div>
       
       <div className="mb-12">
         <TaskForm 
           onSubmit={handleCreateTask} 
           isSubmitting={isSubmitting}
+          // projects={projects}
         />
       </div>
       
@@ -100,6 +102,7 @@ export default function TasksPage() {
         error={error}
         onCompleteTask={handleCompleteTask}
         onDeleteTask={handleDeleteTask}
+        // projects={projects}
       />
     </div>
   );

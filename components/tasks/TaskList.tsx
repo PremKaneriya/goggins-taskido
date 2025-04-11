@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import TaskItem from './TaskItem';
 import { Task } from '@/lib/db/tasks';
-import { ChevronDownIcon, ChevronUpIcon, ListFilterIcon, CheckIcon, ClockIcon, CalendarIcon, FlagIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon, ListFilterIcon, CheckIcon, ClockIcon, CalendarIcon, FlagIcon, FileDown } from 'lucide-react';
 
 interface TaskListProps {
   tasks: Task[];
@@ -24,6 +24,24 @@ export default function TaskList({
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'priority'>('date');
   const [showFilters, setShowFilters] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    try {
+      setPdfLoading(true);
+      
+      // Trigger PDF download
+      window.location.href = '/api/tasks/pdf';
+      
+      // Set timeout to reset loading state
+      setTimeout(() => {
+        setPdfLoading(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      setPdfLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -70,7 +88,7 @@ export default function TaskList({
   if (tasks.length === 0) {
     return (
       <div className="p-8 bg-gray-900/5 border-2 border-dashed border-gray-700 rounded-lg text-center">
-        <p className="text-gray-800 text-xl font-bold uppercase">No tasks? Who’s gonna carry the boats?</p>
+        <p className="text-gray-800 text-xl font-bold uppercase">No tasks? Who's gonna carry the boats?</p>
         <p className="text-gray-600 mt-2">GET AFTER IT. ADD A TASK NOW.</p>
       </div>
     );
@@ -83,14 +101,37 @@ export default function TaskList({
           {filteredTasks.length} MISSION{filteredTasks.length !== 1 ? 'S' : ''} AWAITING
         </div>
         
-        <button 
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 text-gray-700 hover:text-gray-900 p-2 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors"
-        >
-          <ListFilterIcon size={18} />
-          <span className="font-medium">CONTROL YOUR BATTLEFIELD</span>
-          {showFilters ? <ChevronUpIcon size={18} /> : <ChevronDownIcon size={18} />}
-        </button>
+        <div className="flex gap-3">
+          <button 
+            onClick={handleDownloadPdf}
+            disabled={pdfLoading || tasks.length === 0}
+            className="flex items-center gap-2 text-white p-2 rounded-md bg-gray-800 hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:hover:bg-gray-800"
+          >
+            {pdfLoading ? (
+              <>
+                <svg className="animate-spin mr-1 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                GENERATING...
+              </>
+            ) : (
+              <>
+                <FileDown size={18} />
+                <span className="font-medium">DOWNLOAD PDF</span>
+              </>
+            )}
+          </button>
+          
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 p-2 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors"
+          >
+            <ListFilterIcon size={18} />
+            <span className="font-medium">CONTROL YOUR BATTLEFIELD</span>
+            {showFilters ? <ChevronUpIcon size={18} /> : <ChevronDownIcon size={18} />}
+          </button>
+        </div>
       </div>
       
       {showFilters && (
