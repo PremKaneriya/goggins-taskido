@@ -6,6 +6,7 @@ import {
   CalendarIcon,
   FolderIcon,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface SidebarProps {
   projects?: { id: number; name: string }[];
@@ -14,15 +15,16 @@ interface SidebarProps {
 
 export default function Sidebar({ projects = [], onSelectProject }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
   const menuItems = [
-    { label: 'Inbox', icon: <InboxIcon size={16} />, action: () => onSelectProject?.(undefined) },
-    { label: 'Today', icon: <CalendarIcon size={16} />, action: () => onSelectProject?.(undefined) },
+    { label: 'Inbox', icon: <InboxIcon size={16} />, action: () => router.push('/tasks') },
+    { label: 'Today', icon: <CalendarIcon size={16} />, action: () => router.push('/today') },
   ];
 
   return (
     <>
-      {/* Mobile Menu Toggle - Bottom Right + Styled */}
+      {/* Mobile Menu Toggle */}
       <button
         className="fixed bottom-4 right-4 z-50 flex items-center justify-center rounded-full border border-[#db4c3f] bg-white p-3 text-[#db4c3f] shadow-lg sm:hidden hover:bg-[#db4c3f]/10"
         onClick={() => setIsOpen(!isOpen)}

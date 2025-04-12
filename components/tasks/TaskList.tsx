@@ -144,7 +144,8 @@ export default function TaskList({
       </div>
 
       <div className="mb-3 flex gap-1">
-        {['All', 'Active', 'Completed'].map((f) => (
+        {/* {['All', 'Active', 'Completed'].map((f) => ( */}
+        {['All'].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f.toLowerCase() as any)}
