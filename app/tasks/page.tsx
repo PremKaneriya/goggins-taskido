@@ -1,49 +1,39 @@
-// app/tasks/page.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import TaskList from '@/components/tasks/TaskList';
-import TaskForm from '@/components/tasks/TaskForm';
 import { useTasks } from '@/hooks/useTasks';
 import { useRouter } from 'next/navigation';
+import Sidebar from '@/components/tasks/SideBar';
+import TaskFormModal from '@/components/tasks/TaskFormModel';
 
 export default function TasksPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-
+  const router = useRouter();
 
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const res = await fetch("/api/auth/fetch-token", {
-          method: "GET",
-          credentials: "include",
+        const res = await fetch('/api/auth/fetch-token', {
+          method: 'GET',
+          credentials: 'include',
         });
 
         const data = await res.json();
-        if (data.token) {
-          setToken(data.token);
-          router.push("/tasks");
-        } else {
-          router.push("/login")
-        }
+        if (!data.token) {
+          router.push('/login');
+        } 
       } catch (error) {
-        console.error("Error fetching token:", error);
+        console.error('Error fetching token:', error);
       }
     };
 
     fetchToken();
   }, [router]);
 
-  const { 
-    tasks, 
-    isLoading, 
-    error, 
-    createTask, 
-    updateTask, 
-    deleteTask 
-  } = useTasks();
+  const { tasks, isLoading, error, createTask, updateTask, deleteTask } = useTasks();
 
   const handleCreateTask = async (taskData: {
     title: string;
@@ -56,7 +46,7 @@ export default function TasksPage() {
       setIsSubmitting(true);
       await createTask({
         ...taskData,
-        due_date: taskData.due_date || undefined
+        due_date: taskData.due_date || undefined,
       });
     } catch (error) {
       console.error('Failed to create task:', error);
@@ -82,28 +72,26 @@ export default function TasksPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 bg-gray-50 min-h-screen">
-      <div className="mb-12 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 uppercase tracking-widest">Goggins Taskido</h1>
-        <p className="text-gray-700 mt-2 font-medium uppercase">WHO'S GONNA CARRY THE BOATS?</p>
-      </div>
-      
-      <div className="mb-12">
-        <TaskForm 
-          onSubmit={handleCreateTask} 
+    <div className="flex min-h-screen w-full bg-[#fafafa]">
+      <Sidebar projects={[]} />
+      <div className="flex-1 p-3 sm:p-4 lg:p-6">
+        <TaskList
+          tasks={tasks}
+          isLoading={isLoading}
+          error={error}
+          onCompleteTask={handleCompleteTask}
+          onDeleteTask={handleDeleteTask}
+          onOpenTaskForm={() => setIsTaskFormOpen(true)}
+          projects={[]}
+        />
+        <TaskFormModal
+          isOpen={isTaskFormOpen}
+          onClose={() => setIsTaskFormOpen(false)}
+          onSubmit={handleCreateTask}
           isSubmitting={isSubmitting}
-          // projects={projects}
+          projects={[]}
         />
       </div>
-      
-      <TaskList 
-        tasks={tasks} 
-        isLoading={isLoading} 
-        error={error}
-        onCompleteTask={handleCompleteTask}
-        onDeleteTask={handleDeleteTask}
-        // projects={projects}
-      />
     </div>
   );
 }
