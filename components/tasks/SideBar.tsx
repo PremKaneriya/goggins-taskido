@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MenuIcon,
   XIcon,
   InboxIcon,
   CalendarIcon,
   FolderIcon,
+  ClipboardList,
+  ListChecks,
+  Settings
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface SidebarProps {
   projects?: { id: number; name: string }[];
@@ -15,11 +19,57 @@ interface SidebarProps {
 
 export default function Sidebar({ projects = [], onSelectProject }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkIsMobile();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkIsMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
   const menuItems = [
-    { label: 'Inbox', icon: <InboxIcon size={16} />, action: () => router.push('/tasks') },
-    { label: 'Today', icon: <CalendarIcon size={16} />, action: () => router.push('/today') },
+    { 
+      label: 'Inbox', 
+      icon: <InboxIcon size={18} />, 
+      action: () => {
+        router.push('/tasks');
+        if (isMobile) setIsOpen(false);
+      }
+    },
+    { 
+      label: 'Today', 
+      icon: <CalendarIcon size={18} />, 
+      action: () => {
+        router.push('/today');
+        if (isMobile) setIsOpen(false);
+      }
+    },
+    { 
+      label: 'Upcoming', 
+      icon: <ClipboardList size={18} />, 
+      action: () => {
+        router.push('/upcoming');
+        if (isMobile) setIsOpen(false);
+      }
+    },
+    { 
+      label: 'Completed', 
+      icon: <ListChecks size={18} />, 
+      action: () => {
+        router.push('/completed');
+        if (isMobile) setIsOpen(false);
+      }
+    }
   ];
 
   return (
@@ -57,12 +107,23 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
 
         {/* Projects Section */}
         <div className="px-4 mt-4 mb-6">
-          <h2 className="text-xs font-medium text-gray-500 mb-2">Projects</h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xs font-medium text-gray-500">Projects</h2>
+            <button
+              className="rounded-full p-1 text-gray-500 hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
+              onClick={() => router.push('/new-project')}
+            >
+              <FolderIcon size={16} />
+            </button>
+          </div>
           <div className="flex flex-col gap-1">
             {projects.map((project) => (
               <button
                 key={project.id}
-                onClick={() => onSelectProject?.(project.id)}
+                onClick={() => {
+                  onSelectProject?.(project.id);
+                  if (isMobile) setIsOpen(false);
+                }}
                 className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
               >
                 <FolderIcon size={16} />
@@ -71,10 +132,22 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
             ))}
           </div>
         </div>
+
+        {/* Settings link for mobile */}
+        <div className="px-4 py-3 border-t">
+          <Link
+            href="/settings"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
+          >
+            <Settings size={18} />
+            Settings
+          </Link>
+        </div>
       </aside>
 
       {/* Sidebar for Desktop */}
-      <aside className="hidden sm:block sm:w-64 bg-white shadow-md">
+      <aside className="hidden sm:block sm:w-64 bg-white shadow-md h-screen">
         <div className="p-4 border-b">
           <h1 className="text-lg font-bold text-[#db4c3f]">Taskido</h1>
         </div>
@@ -93,7 +166,15 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
         </nav>
 
         <div className="px-4 mt-4">
-          <h2 className="text-xs font-medium text-gray-500 mb-2">Projects</h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xs font-medium text-gray-500">Projects</h2>
+            <button
+              className="rounded-full p-1 text-gray-500 hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
+              onClick={() => router.push('/new-project')}
+            >
+              <FolderIcon size={16} />
+            </button>
+          </div>
           <div className="flex flex-col gap-1">
             {projects.map((project) => (
               <button
@@ -106,6 +187,17 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Settings link for desktop */}
+        <div className="px-4 py-3 mt-auto border-t absolute bottom-0 w-full">
+          <Link
+            href="/settings"
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
+          >
+            <Settings size={18} />
+            Settings
+          </Link>
         </div>
       </aside>
 

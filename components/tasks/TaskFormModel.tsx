@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { CalendarIcon, FlagIcon, FolderIcon, XIcon } from 'lucide-react';
+import { CalendarIcon, FlagIcon, FolderIcon, XIcon, Loader2 } from 'lucide-react';
 
 interface TaskFormModalProps {
   isOpen: boolean;
@@ -46,62 +46,82 @@ export default function TaskFormModal({
     setDueDate(null);
     setPriority(0);
     setProjectId(undefined);
-    onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 pt-12 sm:items-center sm:pt-0">
-      <div className="w-full max-w-md rounded-lg bg-white p-5 shadow-lg">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-semibold text-gray-900">Add Task</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div 
+        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl sm:p-8"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-bold text-gray-900">Add New Task</h2>
+          <button 
+            onClick={onClose} 
+            className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+            aria-label="Close modal"
+          >
             <XIcon size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="text"
-            placeholder="Task name"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded border border-gray-200 p-2 text-sm text-gray-900 placeholder-gray-400 focus:border-[#db4c3f] focus:outline-none focus:ring-1 focus:ring-[#db4c3f]/30"
-            required
-          />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label htmlFor="task-title" className="mb-1 block text-sm font-medium text-gray-700">
+              Task Name*
+            </label>
+            <input
+              id="task-title"
+              type="text"
+              placeholder="What needs to be done?"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 p-3 text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+              required
+            />
+          </div>
 
-          <textarea
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded border border-gray-200 p-2 text-sm text-gray-900 placeholder-gray-400 focus:border-[#db4c3f] focus:outline-none focus:ring-1 focus:ring-[#db4c3f]/30"
-            rows={2}
-          />
+          <div>
+            <label htmlFor="task-description" className="mb-1 block text-sm font-medium text-gray-700">
+              Description (Optional)
+            </label>
+            <textarea
+              id="task-description"
+              placeholder="Add details about this task..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 p-3 text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+              rows={3}
+            />
+          </div>
 
-          <div className="flex flex-wrap gap-2">
-            <div className="flex-1 min-w-[120px]">
-              <label className="mb-1 flex items-center gap-1 text-xs text-gray-600">
-                <CalendarIcon size={12} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="task-due-date" className="mb-1 flex items-center gap-2 text-sm font-medium text-gray-700">
+                <CalendarIcon size={16} className="text-emerald-500" />
                 Due Date
               </label>
               <input
+                id="task-due-date"
                 type="date"
                 value={dueDate ? format(dueDate, 'yyyy-MM-dd') : ''}
                 onChange={(e) => setDueDate(e.target.value ? new Date(e.target.value) : null)}
-                className="w-full rounded border border-gray-200 p-1.5 text-xs text-gray-900 focus:border-[#db4c3f] focus:outline-none focus:ring-1 focus:ring-[#db4c3f]/30"
+                className="w-full rounded-lg border border-gray-300 p-3 text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
               />
             </div>
 
-            <div className="flex-1 min-w-[120px]">
-              <label className="mb-1 flex items-center gap-1 text-xs text-gray-600">
-                <FlagIcon size={12} />
+            <div>
+              <label htmlFor="task-priority" className="mb-1 flex items-center gap-2 text-sm font-medium text-gray-700">
+                <FlagIcon size={16} className="text-emerald-500" />
                 Priority
               </label>
               <select
+                id="task-priority"
                 value={priority}
                 onChange={(e) => setPriority(Number(e.target.value))}
-                className="w-full rounded border border-gray-200 p-1.5 text-xs text-gray-900 focus:border-[#db4c3f] focus:outline-none focus:ring-1 focus:ring-[#db4c3f]/30"
+                className="w-full rounded-lg border border-gray-300 p-3 text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
               >
                 <option value={0}>Low</option>
                 <option value={1}>Medium</option>
@@ -113,16 +133,17 @@ export default function TaskFormModal({
 
           {projects.length > 0 && (
             <div>
-              <label className="mb-1 flex items-center gap-1 text-xs text-gray-600">
-                <FolderIcon size={12} />
+              <label htmlFor="task-project" className="mb-1 flex items-center gap-2 text-sm font-medium text-gray-700">
+                <FolderIcon size={16} className="text-emerald-500" />
                 Project
               </label>
               <select
+                id="task-project"
                 value={projectId || ''}
                 onChange={(e) => setProjectId(e.target.value ? Number(e.target.value) : undefined)}
-                className="w-full rounded border border-gray-200 p-1.5 text-xs text-gray-900 focus:border-[#db4c3f] focus:outline-none focus:ring-1 focus:ring-[#db4c3f]/30"
+                className="w-full rounded-lg border border-gray-300 p-3 text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
               >
-                <option value="">Inbox</option>
+                <option value="">Inbox (No Project)</option>
                 {projects.map((project) => (
                   <option key={project.id} value={project.id}>
                     {project.name}
@@ -132,46 +153,28 @@ export default function TaskFormModal({
             </div>
           )}
 
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              disabled={isSubmitting || !title.trim()}
-              className="flex-1 rounded bg-[#db4c3f] py-2 text-xs font-medium text-white hover:bg-[#c13b31] disabled:cursor-not-allowed disabled:bg-gray-300"
-            >
-              {isSubmitting ? (
-                <>
-                  <svg
-                    className="inline mr-1 h-3 w-3 animate-spin"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Adding...
-                </>
-              ) : (
-                'Add Task'
-              )}
-            </button>
+          <div className="flex gap-3 pt-3">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded bg-gray-100 py-2 text-xs font-medium text-gray-700 hover:bg-gray-200"
+              className="flex-1 rounded-lg border border-gray-300 bg-white py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+              disabled={isSubmitting}
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || !title.trim()}
+              className="flex-1 rounded-lg bg-emerald-600 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-300"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 size={16} className="animate-spin" />
+                  Adding...
+                </span>
+              ) : (
+                'Add Task'
+              )}
             </button>
           </div>
         </form>
