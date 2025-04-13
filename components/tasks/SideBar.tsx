@@ -7,7 +7,8 @@ import {
   FolderIcon,
   ClipboardList,
   ListChecks,
-  Settings
+  Settings,
+  UserIcon
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -116,7 +117,7 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
               <FolderIcon size={16} />
             </button>
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 max-h-40 overflow-y-auto">
             {projects.map((project) => (
               <button
                 key={project.id}
@@ -133,8 +134,16 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
           </div>
         </div>
 
-        {/* Settings link for mobile */}
+        {/* User and Settings for mobile */}
         <div className="px-4 py-3 border-t">
+          <Link
+            href="/profile"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f] mb-2"
+          >
+            <UserIcon size={18} />
+            Profile
+          </Link>
           <Link
             href="/settings"
             onClick={() => setIsOpen(false)}
@@ -175,7 +184,7 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
               <FolderIcon size={16} />
             </button>
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 max-h-60 overflow-y-auto">
             {projects.map((project) => (
               <button
                 key={project.id}
@@ -189,8 +198,15 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
           </div>
         </div>
 
-        {/* Settings link for desktop */}
+        {/* User and Settings links for desktop */}
         <div className="px-4 py-3 mt-auto border-t absolute bottom-0 w-full">
+          <Link
+            href="/profile"
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f] mb-2"
+          >
+            <UserIcon size={18} />
+            Profile
+          </Link>
           <Link
             href="/settings"
             className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
