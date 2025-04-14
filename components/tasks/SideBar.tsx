@@ -1,3 +1,6 @@
+// Sidebar.tsx
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import {
   MenuIcon,
@@ -26,98 +29,70 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) setIsOpen(true);
     };
     
-    // Initial check
     checkIsMobile();
-    
-    // Add resize listener
     window.addEventListener('resize', checkIsMobile);
-    
-    // Cleanup
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
   const menuItems = [
-    { 
-      label: 'Inbox', 
-      icon: <InboxIcon size={18} />, 
-      action: () => {
-        router.push('/tasks');
-        if (isMobile) setIsOpen(false);
-      }
-    },
-    { 
-      label: 'Today', 
-      icon: <CalendarIcon size={18} />, 
-      action: () => {
-        router.push('/today');
-        if (isMobile) setIsOpen(false);
-      }
-    },
-    { 
-      label: 'Upcoming', 
-      icon: <ClipboardList size={18} />, 
-      action: () => {
-        router.push('/upcoming');
-        if (isMobile) setIsOpen(false);
-      }
-    },
-    { 
-      label: 'Completed', 
-      icon: <ListChecks size={18} />, 
-      action: () => {
-        router.push('/completed');
-        if (isMobile) setIsOpen(false);
-      }
-    }
+    { label: 'Inbox', icon: <InboxIcon size={20} />, path: '/tasks' },
+    { label: 'Today', icon: <CalendarIcon size={20} />, path: '/today' },
+    { label: 'Upcoming', icon: <ClipboardList size={20} />, path: '/upcoming' },
+    { label: 'Completed', icon: <ListChecks size={20} />, path: '/completed' },
+    { label: 'Missed', icon: <XIcon size={20} />, path: '/missed-tasks' },
   ];
 
   return (
     <>
       {/* Mobile Menu Toggle */}
       <button
-        className="fixed bottom-4 right-4 z-50 flex items-center justify-center rounded-full border border-[#db4c3f] bg-white p-3 text-[#db4c3f] shadow-lg sm:hidden hover:bg-[#db4c3f]/10"
+        className="fixed bottom-6 right-6 z-50 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 p-3 text-white shadow-lg transition-transform hover:scale-105 sm:hidden"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <XIcon size={20} /> : <MenuIcon size={20} />}
+        {isOpen ? <XIcon size={24} /> : <MenuIcon size={24} />}
       </button>
 
-      {/* Bottom Sidebar for Mobile */}
+      {/* Sidebar */}
       <aside
-        className={`fixed bottom-0 left-0 right-0 z-40 max-h-[80vh] transform bg-white shadow-md transition-transform duration-200 sm:hidden ${
-          isOpen ? 'translate-y-0' : 'translate-y-full'
+        className={`fixed inset-y-0 left-0 z-40 w-72 bg-gradient-to-b from-gray-50 to-white shadow-2xl transition-transform duration-300 sm:static sm:shadow-md ${
+          isOpen ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'
         }`}
       >
-        <div className="p-4 border-b">
-          <h1 className="text-lg font-bold text-[#db4c3f]">Taskido</h1>
+        <div className="p-6 border-b border-gray-100">
+          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">
+            Taskido
+          </h1>
         </div>
 
-        <nav className="flex flex-col gap-1 p-4">
+        <nav className="flex flex-col p-4 space-y-1">
           {menuItems.map((item, idx) => (
-            <button
+            <Link
               key={idx}
-              onClick={item.action}
-              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
+              href={item.path}
+              onClick={() => isMobile && setIsOpen(false)}
+              className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 hover:shadow-sm"
             >
               {item.icon}
-              {item.label}
-            </button>
+              <span className="font-medium">{item.label}</span>
+            </Link>
           ))}
         </nav>
 
         {/* Projects Section */}
-        <div className="px-4 mt-4 mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xs font-medium text-gray-500">Projects</h2>
+        <div className="px-4 mt-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-500">Projects</h2>
             <button
-              className="rounded-full p-1 text-gray-500 hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
+              className="p-1.5 rounded-full text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
               onClick={() => router.push('/new-project')}
             >
-              <FolderIcon size={16} />
+              <FolderIcon size={18} />
             </button>
           </div>
-          <div className="flex flex-col gap-1 max-h-40 overflow-y-auto">
+          <div className="space-y-1 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-200">
             {projects.map((project) => (
               <button
                 key={project.id}
@@ -125,94 +100,32 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
                   onSelectProject?.(project.id);
                   if (isMobile) setIsOpen(false);
                 }}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
+                className="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-gray-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 hover:shadow-sm"
               >
-                <FolderIcon size={16} />
-                {project.name}
+                <FolderIcon size={18} />
+                <span className="font-medium truncate">{project.name}</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* User and Settings for mobile */}
-        <div className="px-4 py-3 border-t">
+        {/* User and Settings */}
+        <div className="absolute bottom-0 w-full p-4 border-t border-gray-100">
           <Link
             href="/profile"
             onClick={() => setIsOpen(false)}
-            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f] mb-2"
+            className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 mb-2"
           >
-            <UserIcon size={18} />
-            Profile
+            <UserIcon size={20} />
+            <span className="font-medium">Profile</span>
           </Link>
           <Link
             href="/settings"
             onClick={() => setIsOpen(false)}
-            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
+            className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-600 transition-all hover:bg-indigo-50 hover:text-indigo-600"
           >
-            <Settings size={18} />
-            Settings
-          </Link>
-        </div>
-      </aside>
-
-      {/* Sidebar for Desktop */}
-      <aside className="hidden sm:block sm:w-64 bg-white shadow-md h-screen">
-        <div className="p-4 border-b">
-          <h1 className="text-lg font-bold text-[#db4c3f]">Taskido</h1>
-        </div>
-
-        <nav className="flex flex-col gap-1 p-4">
-          {menuItems.map((item, idx) => (
-            <button
-              key={idx}
-              onClick={item.action}
-              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
-            >
-              {item.icon}
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="px-4 mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xs font-medium text-gray-500">Projects</h2>
-            <button
-              className="rounded-full p-1 text-gray-500 hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
-              onClick={() => router.push('/new-project')}
-            >
-              <FolderIcon size={16} />
-            </button>
-          </div>
-          <div className="flex flex-col gap-1 max-h-60 overflow-y-auto">
-            {projects.map((project) => (
-              <button
-                key={project.id}
-                onClick={() => onSelectProject?.(project.id)}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
-              >
-                <FolderIcon size={16} />
-                {project.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* User and Settings links for desktop */}
-        <div className="px-4 py-3 mt-auto border-t absolute bottom-0 w-full">
-          <Link
-            href="/profile"
-            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f] mb-2"
-          >
-            <UserIcon size={18} />
-            Profile
-          </Link>
-          <Link
-            href="/settings"
-            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition hover:bg-[#db4c3f]/10 hover:text-[#db4c3f]"
-          >
-            <Settings size={18} />
-            Settings
+            <Settings size={20} />
+            <span className="font-medium">Settings</span>
           </Link>
         </div>
       </aside>
@@ -220,7 +133,7 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
       {/* Overlay for Mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/40 sm:hidden"
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm sm:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
