@@ -1,9 +1,9 @@
-// ProfilePage.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { UserIcon, Mail, Calendar, Edit, Save, X } from 'lucide-react';
+import { UserIcon, Mail, Calendar, Edit, Save, X, LogOut } from 'lucide-react';
 import Sidebar from './SideBar';
+import { useRouter } from 'next/navigation';
 
 interface UserProfile {
   id: number;
@@ -21,6 +21,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [editing, setEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
+  const router = useRouter();
 
   useEffect(() => {
     fetchProfile();
@@ -80,6 +81,18 @@ export default function ProfilePage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      router.push('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -92,9 +105,21 @@ export default function ProfilePage() {
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
 
-      <main className="flex-1 p-4 sm:p-6 md:p-8">
+      {/* Main content with left margin to accommodate sidebar */}
+      <main className="flex-1 p-4 sm:p-6 md:p-8 pl-0 sm:pl-72">
         <div className="mx-auto max-w-4xl w-full">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">Profile</h1>
+          <div className="flex justify-between items-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Profile</h1>
+            
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-all text-sm"
+            >
+              <LogOut size={16} />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          </div>
 
           {loading && !profile ? (
             <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-6 sm:p-8 text-center">
@@ -129,33 +154,35 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  {!editing ? (
-                    <button
-                      onClick={handleEdit}
-                      className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all text-xs sm:text-sm self-start"
-                    >
-                      <Edit size={14} className="sm:size-16" />
-                      Edit
-                    </button>
-                  ) : (
-                    <div className="flex gap-2 sm:gap-3">
+                  <div className="flex gap-2 sm:gap-3 sm:self-start">
+                    {!editing ? (
                       <button
-                        onClick={handleSave}
-                        className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-indigo-600 rounded-lg hover:bg-gray-100 transition-all text-xs sm:text-sm"
-                        disabled={loading}
-                      >
-                        <Save size={14} className="sm:size-16" />
-                        Save
-                      </button>
-                      <button
-                        onClick={handleCancel}
+                        onClick={handleEdit}
                         className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all text-xs sm:text-sm"
                       >
-                        <X size={14} className="sm:size-16" />
-                        Cancel
+                        <Edit size={14} className="sm:size-16" />
+                        <span className="hidden xs:inline">Edit</span>
                       </button>
-                    </div>
-                  )}
+                    ) : (
+                      <>
+                        <button
+                          onClick={handleSave}
+                          className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-indigo-600 rounded-lg hover:bg-gray-100 transition-all text-xs sm:text-sm"
+                          disabled={loading}
+                        >
+                          <Save size={14} className="sm:size-16" />
+                          <span className="hidden xs:inline">Save</span>
+                        </button>
+                        <button
+                          onClick={handleCancel}
+                          className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all text-xs sm:text-sm"
+                        >
+                          <X size={14} className="sm:size-16" />
+                          <span className="hidden xs:inline">Cancel</span>
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -219,6 +246,17 @@ export default function ProfilePage() {
                       </p>
                     </div>
                   </div>
+                </div>
+
+                {/* Mobile Logout Button - Only visible on small screens */}
+                <div className="pt-4 mt-8 border-t border-gray-100 sm:hidden">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-all"
+                  >
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                  </button>
                 </div>
               </div>
             </div>

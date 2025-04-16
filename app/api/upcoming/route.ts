@@ -18,7 +18,7 @@ export const GET = async (request: NextRequest) => {
             FROM
                 tasks
             WHERE
-                user_id = $1 AND is_completed = FALSE AND due_date > NOW()
+                user_id = $1 AND is_completed = FALSE AND due_date > NOW() AND is_deleted = false
             ORDER BY
                 due_date ASC
         `;
