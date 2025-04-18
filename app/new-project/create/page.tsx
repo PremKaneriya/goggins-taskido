@@ -1,4 +1,3 @@
-// FILE: /app/projects/create/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -54,9 +53,8 @@ export default function CreateProjectPage() {
       if (res.ok) {
         setMessage('Project created successfully!');
         setMessageType('success');
-        // Navigate back to projects list after successful creation
         setTimeout(() => {
-          router.push('/new-project'); 
+          router.push('/new-project');
         }, 1500);
       } else {
         setMessage(data.message || 'Something went wrong');
@@ -79,40 +77,40 @@ export default function CreateProjectPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto my-12 text-gray-800 p-8 bg-white rounded-2xl shadow-lg">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Create New Project</h1>
-        <Link 
-          href="/new-project" 
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+    <div className="max-w-2xl mx-auto my-8 p-6 bg-white rounded-xl shadow-2xl transform transition-all duration-300 hover:shadow-blue-200">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Create New Project</h1>
+        <Link
+          href="/new-project"
+          className="text-indigo-600 hover:text-indigo-800 text-sm font-medium transition-colors duration-200"
         >
           Back to Projects
         </Link>
       </div>
       
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-            Project Title <span className="text-red-500">*</span>
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            Project Title <span className="text-red-600">*</span>
           </label>
           <input
             id="title"
             type="text"
             placeholder="Enter project title"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
 
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
             Description
           </label>
           <textarea
             id="description"
             placeholder="Describe your project"
-            className="w-full p-3 border border-gray-300 rounded-lg h-32 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full p-3 border border-gray-300 rounded-lg h-32 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 resize-y"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
@@ -122,55 +120,55 @@ export default function CreateProjectPage() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Associated Tasks
           </label>
-          <div className="border border-gray-300 rounded-lg overflow-hidden">
+          <div className="border border-gray-300 rounded-xl overflow-hidden shadow-inner">
             {tasks.length > 0 ? (
-              <div className="max-h-64 overflow-y-auto">
+              <div className="max-h-72 overflow-y-auto divide-y divide-gray-200">
                 {tasks.map(task => (
-                  <div 
-                    key={task.id} 
-                    className={`flex items-center p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition ${
-                      selectedTasks.includes(task.id) ? 'bg-blue-50' : ''
+                  <div
+                    key={task.id}
+                    className={`flex items-center p-4 cursor-pointer hover:bg-indigo-50 transition-colors duration-200 ${
+                      selectedTasks.includes(task.id) ? 'bg-indigo-100' : ''
                     }`}
                     onClick={() => handleSelectTask(task.id)}
                   >
-                    <div className={`w-5 h-5 rounded border flex items-center justify-center mr-3 ${
-                      selectedTasks.includes(task.id) 
-                        ? 'bg-blue-500 border-blue-500' 
-                        : 'border-gray-300'
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-4 transition-all duration-200 ${
+                      selectedTasks.includes(task.id)
+                        ? 'border-indigo-600 bg-indigo-600'
+                        : 'border-gray-400'
                     }`}>
                       {selectedTasks.includes(task.id) && (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M20 6L9 17l-5-5"></path>
                         </svg>
                       )}
                     </div>
-                    <span className="text-gray-700">{task.title}</span>
+                    <span className="text-gray-800">{task.title}</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="p-4 text-center text-gray-500">
+              <div className="p-4 text-center text-gray-500 bg-gray-50">
                 No tasks available
               </div>
             )}
           </div>
-          <div className="mt-2 text-sm text-gray-500">
+          <div className="mt-2 text-sm text-gray-600">
             {selectedTasks.length} task{selectedTasks.length !== 1 ? 's' : ''} selected
           </div>
         </div>
 
         {message && (
-          <div className={`p-4 rounded-lg ${
+          <div className={`p-4 rounded-xl ${
             messageType === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-          }`}>
+          } shadow-md animate-fade-in`}>
             {message}
           </div>
         )}
 
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="flex justify-end gap-4 pt-4">
           <button
             type="button"
-            className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+            className="px-6 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
             onClick={() => {
               setTitle('');
               setDescription('');
@@ -183,7 +181,7 @@ export default function CreateProjectPage() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition flex items-center justify-center disabled:opacity-70"
+            className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200 flex items-center justify-center disabled:opacity-80 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
