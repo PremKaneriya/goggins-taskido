@@ -10,7 +10,7 @@ interface Project {
   title: string;
   description: string;
   created_at: string;
-  status?: string;
+  status: 'in-progress' | 'completed' | 'not-started' | 'dismissed';
 }
 
 interface Task {

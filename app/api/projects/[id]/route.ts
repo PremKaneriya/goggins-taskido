@@ -47,6 +47,7 @@ export async function GET(
         p.description,
         p.created_at,
         p.user_id,
+        p.status,
         json_agg(
           json_build_object(
             'id', t.id,
@@ -70,7 +71,8 @@ export async function GET(
         p.title,
         p.description,
         p.created_at,
-        p.user_id
+        p.user_id,
+        p.status
       ORDER BY
         p.created_at DESC
       LIMIT 1
