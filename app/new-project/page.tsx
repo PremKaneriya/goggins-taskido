@@ -207,19 +207,15 @@ export default function NewProjectPage() {
                         </div>
                         {project.status && (
                           <span
-                            className={`inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full ${
+                            className={
                               project.status === "completed"
-                                ? "bg-green-100 text-green-800"
+                                ? "inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800"
                                 : project.status === "in-progress"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-yellow-100 text-yellow-800"
-                            }`}
+                                ? "inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800"
+                                : "inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800"  
+                            } 
                           >
-                            {project.status === "in-progress"
-                              ? "In Progress"
-                              : project.status === "completed"
-                              ? "Completed"
-                              : "Not Started"}
+                            {project.status === "in-progress" ? "In Progress" : project.status === "completed" ? "Completed" : "Not Started"}
                           </span>
                         )}
                         <Link
