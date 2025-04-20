@@ -10,19 +10,21 @@ import {
   ClipboardList,
   ListChecks,
   Settings,
-  UserIcon
+  UserIcon,
+  ChevronDownIcon
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface SidebarProps {
-  projects?: { id: number; name: string }[];
+  projects?: { id: number; name: string; status: string }[];
   onSelectProject?: (projectId?: number) => void;
 }
 
 export default function Sidebar({ projects = [], onSelectProject }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isProjectsDropdownOpen, setIsProjectsDropdownOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -84,30 +86,44 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
         </nav>
 
         {/* Projects Section */}
-        <div className="px-4 mt-6 flex-1 overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between mb-3 flex-shrink-0">
-            <h2 className="text-sm font-semibold text-gray-500">Projects</h2>
-            <button
-              className="p-1.5 rounded-full text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
-              onClick={() => router.push('/new-project')}
-            >
-              <FolderIcon size={18} />
-            </button>
-          </div>
+        <div className="px-4 flex-1 overflow-hidden flex flex-col">
           <div className="space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-200 flex-1">
-            {projects.map((project) => (
+            {/* Projects Dropdown */}
+            <div>
               <button
-                key={project.id}
-                onClick={() => {
-                  onSelectProject?.(project.id);
-                  if (isMobile) setIsOpen(false);
-                }}
-                className="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-gray-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 hover:shadow-sm"
+                className="w-full flex items-center justify-between rounded-lg px-4 py-3 text-gray-600 transition-all hover:bg-indigo-50 hover:text-indigo-600"
+                onClick={() => setIsProjectsDropdownOpen(!isProjectsDropdownOpen)}
               >
-                <FolderIcon size={18} />
-                <span className="font-medium truncate">{project.name}</span>
+                <div className="flex items-center gap-3">
+                  <FolderIcon size={18} />
+                  <span className="font-medium">Projects</span>
+                </div>
+                <ChevronDownIcon size={18} className={`transition-transform ${isProjectsDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-            ))}
+              {isProjectsDropdownOpen && (
+                <div className="ml-6 mt-1 space-y-1">
+                  <Link
+                    href="/new-project"
+                    onClick={() => isMobile && setIsOpen(false)}
+                    className="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-gray-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 hover:shadow-sm"
+                  >
+                    <FolderIcon size={18} />
+                    <span className="font-medium">On-going Projects</span>
+                  </Link>
+                  <Link
+                    href="/completed-projects"
+                    onClick={() => {
+                      if (isMobile) setIsOpen(false);
+                      setIsProjectsDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-gray-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 hover:shadow-sm"
+                  >
+                    <FolderIcon size={18} />
+                    <span className="font-medium">Completed Projects</span>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
