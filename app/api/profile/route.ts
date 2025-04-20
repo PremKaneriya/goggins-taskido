@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const PUT = async (request: NextRequest) => {
     try {
         const userId = await getUserFromRequest(request);
-        
+
         if (!userId) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
@@ -22,7 +22,6 @@ export const PUT = async (request: NextRequest) => {
         // Start with empty updates object
         const updates: Record<string, any> = {};
         const params: any[] = [];
-        let paramCount = 1;
         
         // Only add fields that were actually provided
         if (full_name !== undefined) {
@@ -44,21 +43,20 @@ export const PUT = async (request: NextRequest) => {
         
         // Build SET clause for SQL
         const setClause = Object.entries(updates)
-            .map(([key, value]) => `${key} = ${paramCount++}`)
-            .join(', ');
+        .map(([key, _], index) => `${key} = $${index + 1}`)
+        .join(', ');
         
-        // Add userId to params
         params.push(userId);
         
         const sql = `
-            UPDATE users
-            SET ${setClause}
-            WHERE id = $${paramCount}
-            RETURNING id, email, full_name, created_at, last_login, is_deleted, deleted_at
+        UPDATE users
+        SET ${setClause}
+        WHERE id = $${userId}
+        RETURNING id, email, full_name, created_at, last_login, is_deleted, deleted_at
         `;
 
         const { rows } = await query(sql, params);
-        
+
         if (rows.length === 0) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
@@ -76,7 +74,7 @@ export const PUT = async (request: NextRequest) => {
 export const GET = async (request: NextRequest) => {
     try {
         const userId = await getUserFromRequest(request);
-        
+
         if (!userId) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
