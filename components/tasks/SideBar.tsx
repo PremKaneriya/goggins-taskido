@@ -25,6 +25,7 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isProjectsDropdownOpen, setIsProjectsDropdownOpen] = useState(false);
+  const [username, setUsername] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -45,6 +46,26 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
     { label: 'Completed', icon: <ListChecks size={20} />, path: '/completed' },
     { label: 'Missed', icon: <XIcon size={20} />, path: '/missed-tasks' },
   ];
+
+  useEffect(() => {
+    getUsername();
+  }, []);
+
+  const getUsername = async () => {
+    try {
+      const response = await fetch('/api/username', {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to fetch username');
+      }
+      const data = await response.json();
+      setUsername(data.username);
+    } catch (err) {
+      console.error('Error fetching username:', err);
+    }
+  };
 
   return (
     <div className="h-screen flex">
@@ -67,7 +88,7 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
       >
         <div className="p-6 border-b border-gray-100 flex-shrink-0">
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">
-            Taskido
+          {`${username}'s Taskido`}
           </h1>
         </div>
 
@@ -85,8 +106,11 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
           ))}
         </nav>
 
+        {/* Separator */}
+        <hr className="mx-4 my-2 border-gray-200" />
+
         {/* Projects Section */}
-        <div className="px-4 flex-1 overflow-hidden flex flex-col">
+        <div className="px-4 mt-3 flex-1 overflow-hidden flex flex-col">
           <div className="space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-200 flex-1">
             {/* Projects Dropdown */}
             <div>
