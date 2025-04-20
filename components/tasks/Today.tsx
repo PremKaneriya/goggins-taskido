@@ -1,4 +1,3 @@
-// app/today/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -32,6 +31,11 @@ export default function TodayPage() {
       });
       if (!response.ok) {
         const data = await response.json();
+        if (response.status === 404 && data.message === 'No tasks found') {
+          // Treat 404 "No tasks found" as an empty task list
+          setTasks([]);
+          return;
+        }
         throw new Error(data.message || 'Failed to fetch tasks');
       }
       const data = await response.json();
@@ -76,7 +80,7 @@ export default function TodayPage() {
             </div>
           ) : tasks.length === 0 ? (
             <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-6 sm:p-8 text-center">
-              <p className="text-gray-600 text-sm sm:text-base">No tasks due today.</p>
+              <p className="text-gray-600 text-sm sm:text-base">No tasks for today</p>
             </div>
           ) : (
             <div className="bg-white rounded-lg sm:rounded-xl shadow-lg overflow-hidden">

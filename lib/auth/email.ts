@@ -31,7 +31,6 @@ export async function sendOtpEmail(to: string, otp: string): Promise<boolean> {
       `,
     });
     
-    console.log('Email sent:', info.messageId);
     return true;
   } catch (error) {
     console.error('Error sending email:', error);

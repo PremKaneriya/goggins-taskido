@@ -51,7 +51,6 @@ export default function ProjectDetailsPage() {
         throw new Error(data.message || 'Failed to fetch project');
       }
       const data = await response.json();
-      console.log('Fetched project:', data);
       setProject(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');

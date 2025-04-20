@@ -99,7 +99,6 @@ export async function getUserFromRequest(req: NextRequest) {
     const sessionToken = req.cookies.get('auth_session')?.value;
     
     if (!sessionToken) {
-      console.log('No session token found in cookies');
       return null;
     }
     
@@ -107,7 +106,6 @@ export async function getUserFromRequest(req: NextRequest) {
     const user = await getUserFromSession(sessionToken);
     
     if (!user) {
-      console.log('No valid user found for session token');
       return null;
     }
     

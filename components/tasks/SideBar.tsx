@@ -25,6 +25,7 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isProjectsDropdownOpen, setIsProjectsDropdownOpen] = useState(false);
+  const [isTasksDropdownOpen, setIsTasksDropdownOpen] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const router = useRouter();
 
@@ -88,29 +89,45 @@ export default function Sidebar({ projects = [], onSelectProject }: SidebarProps
       >
         <div className="p-6 border-b border-gray-100 flex-shrink-0">
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">
-          {`${username}'s Taskido`}
+            {`${username}'s Taskido`}
           </h1>
         </div>
 
         <nav className="flex flex-col p-4 space-y-1 flex-shrink-0">
-          {menuItems.map((item, idx) => (
-            <Link
-              key={idx}
-              href={item.path}
-              onClick={() => isMobile && setIsOpen(false)}
-              className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 hover:shadow-sm"
+          {/* Tasks Dropdown */}
+          <div>
+            <button
+              className="w-full flex items-center justify-between rounded-lg px-4 py-3 text-gray-600 transition-all hover:bg-indigo-50 hover:text-indigo-600"
+              onClick={() => setIsTasksDropdownOpen(!isTasksDropdownOpen)}
             >
-              {item.icon}
-              <span className="font-medium">{item.label}</span>
-            </Link>
-          ))}
+              <div className="flex items-center gap-3">
+                <ClipboardList size={18} />
+                <span className="font-medium">Tasks</span>
+              </div>
+              <ChevronDownIcon size={18} className={`transition-transform ${isTasksDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isTasksDropdownOpen && (
+              <div className="ml-6 mt-1 space-y-1">
+                {menuItems.map((item, idx) => (
+                  <Link
+                    key={idx}
+                    href={item.path}
+                    onClick={() => isMobile && setIsOpen(false)}
+                    className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-600 transition-all hover:bg-indigo-50 hover:text-indigo-600 hover:shadow-sm"
+                  >
+                    {item.icon}
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+            
+          </div>
+          <div className="px-4 flex-1 overflow-hidden flex flex-col">
+        </div>
         </nav>
-
-        {/* Separator */}
-        <hr className="mx-4 my-2 border-gray-200" />
-
-        {/* Projects Section */}
-        <div className="px-4 mt-3 flex-1 overflow-hidden flex flex-col">
+                {/* Projects Section */}
+        <div className="px-4 flex-1 overflow-hidden flex flex-col">
           <div className="space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-200 flex-1">
             {/* Projects Dropdown */}
             <div>

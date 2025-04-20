@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
     `;
 
     const { rows } = await query(sql, [userId]);
-    console.log('rows', rows);
     if (rows.length === 0) {
       return NextResponse.json({ message: "User not found." }, { status: 404 });
     }
