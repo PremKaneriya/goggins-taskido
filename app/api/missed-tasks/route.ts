@@ -28,10 +28,6 @@ export const GET = async (request: NextRequest) => {
 
         const { rows } = await query(sql, [userId]);
 
-        if (rows.length === 0) {
-            return NextResponse.json({ message: "No tasks found" }, { status: 404 });
-        }
-
         return NextResponse.json(rows);
     } catch (error) {
         console.error("Error fetching tasks:", error);

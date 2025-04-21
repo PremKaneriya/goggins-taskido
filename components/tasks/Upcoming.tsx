@@ -30,6 +30,10 @@ export default function UpcomingPage() {
       const response = await fetch('/api/upcoming', {
         headers: { 'Content-Type': 'application/json' },
       });
+      if (response.status === 404 || response.status === 204) {
+        setTasks([]); // Treat 404/204 as "no tasks found"
+        return;
+      }
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || 'Failed to fetch tasks');
@@ -37,7 +41,12 @@ export default function UpcomingPage() {
       const data = await response.json();
       setTasks(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      if (errorMessage === 'No tasks found') {
+        setTasks([]); // Handle specific "No tasks found" error
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }

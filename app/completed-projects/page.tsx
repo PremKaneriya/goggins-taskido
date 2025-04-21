@@ -76,7 +76,7 @@ export default function CompletedProjectsPage() {
             </div>
           ) : projects.length === 0 ? (
             <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-6 sm:p-8 text-center">
-              <p className="text-gray-600 text-sm sm:text-base">No completed projects found.</p>
+              <p className="text-gray-600 text-sm sm:text-base">No completed tasks</p>
             </div>
           ) : (
             <div className="bg-white rounded-lg sm:rounded-xl shadow-lg overflow-hidden">

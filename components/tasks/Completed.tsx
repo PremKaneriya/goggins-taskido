@@ -1,4 +1,3 @@
-// app/completed/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -30,6 +29,10 @@ export default function CompletedPage() {
       const response = await fetch('/api/completed', {
         headers: { 'Content-Type': 'application/json' },
       });
+      if (response.status === 404 || response.status === 204) {
+        setTasks([]); // Treat 404/204 as "no tasks found"
+        return;
+      }
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || 'Failed to fetch tasks');
@@ -37,7 +40,12 @@ export default function CompletedPage() {
       const data = await response.json();
       setTasks(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      if (errorMessage === 'No tasks found') {
+        setTasks([]); // Handle specific "No tasks found" error
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -87,7 +95,7 @@ export default function CompletedPage() {
                       key={task.id}
                       className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg"
                     >
-                      <CheckCircle size={20} className="text-green-500 sm:mt-1 shrink-0" />
+                      <CheckCircle size={20} className="[text-green-500 sm:mt-1 shrink-0" />
                       <div className="flex-1">
                         <h3 className="text-sm sm:text-base font-semibold text-gray-800">{task.title}</h3>
                         {task.description && (
