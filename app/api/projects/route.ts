@@ -18,7 +18,7 @@ export const GET = async (request: NextRequest) => {
             FROM
                 projects
             WHERE
-                user_id = $1
+                user_id = $1 AND is_deleted = FALSE
             ORDER BY
                 created_at DESC
         `;

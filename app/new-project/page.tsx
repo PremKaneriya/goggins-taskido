@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Clock, Plus } from "lucide-react";
+import { Clock, Plus, Trash2 } from "lucide-react";
 import Sidebar from "@/components/tasks/SideBar";
 import Link from "next/link";
 
@@ -10,7 +10,7 @@ interface Project {
   title: string;
   description: string;
   created_at: string;
-  status: 'in-progress' | 'completed' | 'not-started' | 'dismissed';
+  status: "in-progress" | "completed" | "not-started" | "dismissed";
 }
 
 interface Task {
@@ -29,6 +29,8 @@ export default function NewProjectPage() {
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // New state for delete modal
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null); // Track project to delete
 
   useEffect(() => {
     fetchProjects();
@@ -104,7 +106,7 @@ export default function NewProjectPage() {
         setSelectedTasks([]);
         setTimeout(() => {
           setIsModalOpen(false);
-          fetchProjects(); // Refresh project list
+          fetchProjects();
           setMessage("");
         }, 1500);
       } else {
@@ -116,6 +118,38 @@ export default function NewProjectPage() {
       setMessageType("error");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!projectToDelete) return;
+
+    try {
+      setLoading(true);
+      const response = await fetch("/api/projects", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: projectToDelete }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("Project deleted successfully!");
+        setMessageType("success");
+        fetchProjects();
+        setTimeout(() => setMessage(""), 1500);
+      } else {
+        setMessage(data.message || "Failed to delete project");
+        setMessageType("error");
+      }
+    } catch (err) {
+      setMessage("Failed to connect to server");
+      setMessageType("error");
+    } finally {
+      setLoading(false);
+      setIsDeleteModalOpen(false);
+      setProjectToDelete(null);
     }
   };
 
@@ -153,6 +187,18 @@ export default function NewProjectPage() {
               New Project
             </button>
           </div>
+
+          {message && !isModalOpen && !isDeleteModalOpen && (
+            <div
+              className={`mb-4 p-3 rounded-lg ${
+                messageType === "success"
+                  ? "bg-green-50 text-green-700"
+                  : "bg-red-50 text-red-700"
+              }`}
+            >
+              {message}
+            </div>
+          )}
 
           {loading ? (
             <div className="bg-white rounded-lg sm:rounded-xl shadow-lg p-6 sm:p-8 text-center">
@@ -193,9 +239,22 @@ export default function NewProjectPage() {
                         className="text-indigo-500 sm:mt-1 shrink-0"
                       />
                       <div className="flex-1">
-                        <h3 className="text-sm sm:text-base font-semibold text-gray-800">
-                          {project.title}
-                        </h3>
+                        <div className="flex justify-between items-start">
+                          <h3 className="text-sm sm:text-base font-semibold text-gray-800">
+                            {project.title}
+                          </h3>
+                          <button
+                            onClick={() => {
+                              setProjectToDelete(project.id);
+                              setIsDeleteModalOpen(true);
+                            }}
+                            className="text-red-500 hover:text-red-700 transition-colors"
+                            title="Delete project"
+                            aria-label="Delete project"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
                         {project.description && (
                           <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">
                             {project.description}
@@ -212,10 +271,14 @@ export default function NewProjectPage() {
                                 ? "inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800"
                                 : project.status === "in-progress"
                                 ? "inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800"
-                                : "inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800"  
-                            } 
+                                : "inline-block mt-2 px-2.5 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800"
+                            }
                           >
-                            {project.status === "in-progress" ? "In Progress" : project.status === "completed" ? "Completed" : "Not Started"}
+                            {project.status === "in-progress"
+                              ? "In Progress"
+                              : project.status === "completed"
+                              ? "Completed"
+                              : "Not Started"}
                           </span>
                         )}
                         <Link
@@ -416,6 +479,37 @@ export default function NewProjectPage() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          )}
+
+          {/* Delete Confirmation Modal */}
+          {isDeleteModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 text-gray-900">
+              <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform transition-all duration-300">
+                <h2 className="text-lg font-bold text-gray-900 mb-4">
+                  Confirm Delete
+                </h2>
+                <p className="text-sm text-gray-600 mb-6">
+                  Are you sure you want to delete this project? This action cannot be undone.
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      setIsDeleteModalOpen(false);
+                      setProjectToDelete(null);
+                    }}
+                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           )}
