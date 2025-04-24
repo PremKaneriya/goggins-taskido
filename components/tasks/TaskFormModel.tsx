@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { CalendarIcon, FlagIcon, FolderIcon, XIcon, Loader2 } from 'lucide-react';
+import { CalendarIcon, FlagIcon, FolderIcon, XIcon, Loader2, CalendarCheck } from 'lucide-react';
 
 interface TaskFormModalProps {
   isOpen: boolean;
@@ -28,6 +28,7 @@ export default function TaskFormModal({
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [priority, setPriority] = useState(0);
   const [projectId, setProjectId] = useState<number | undefined>(undefined);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +47,42 @@ export default function TaskFormModal({
     setDueDate(null);
     setPriority(0);
     setProjectId(undefined);
+    setDateError(null);
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedDate = e.target.value ? new Date(e.target.value) : null;
+    
+    if (selectedDate) {
+      // Reset time part to avoid timezone issues
+      selectedDate.setHours(0, 0, 0, 0);
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (selectedDate < today) {
+        setDateError("Due date cannot be earlier than today");
+        // Keep the previous valid date
+      } else {
+        setDueDate(selectedDate);
+        setDateError(null);
+      }
+    } else {
+      setDueDate(null);
+      setDateError(null);
+    }
+  };
+
+  const setToToday = () => {
+    const today = new Date();
+    setDueDate(today);
+    setDateError(null);
+  };
+
+  // Format today's date in YYYY-MM-DD for min attribute
+  const getTodayFormatted = () => {
+    const today = new Date();
+    return format(today, 'yyyy-MM-dd');
   };
 
   if (!isOpen) return null;
@@ -103,13 +140,27 @@ export default function TaskFormModal({
                 <CalendarIcon size={16} className="text-emerald-500" />
                 Due Date
               </label>
-              <input
-                id="task-due-date"
-                type="date"
-                value={dueDate ? format(dueDate, 'yyyy-MM-dd') : ''}
-                onChange={(e) => setDueDate(e.target.value ? new Date(e.target.value) : null)}
-                className="w-full rounded-lg border border-gray-300 p-3 text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-              />
+              <div>
+                <input
+                  id="task-due-date"
+                  type="date"
+                  value={dueDate ? format(dueDate, 'yyyy-MM-dd') : ''}
+                  min={getTodayFormatted()}
+                  onChange={handleDateChange}
+                  className={`w-full min-w-30 rounded-lg border ${dateError ? 'border-red-500' : 'border-gray-300'} p-3 text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30`}
+                />
+                {dateError && (
+                  <p className="mt-1 text-xs text-red-500">{dateError}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={setToToday}
+                  className="mt-2 rounded-md bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 flex items-center gap-1"
+                >
+                  <CalendarCheck size={14} />
+                  Set to Today
+                </button>
+              </div>
             </div>
 
             <div>
@@ -164,7 +215,7 @@ export default function TaskFormModal({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || !title.trim()}
+              disabled={isSubmitting || !title.trim() || dateError !== null}
               className="flex-1 rounded-lg bg-emerald-600 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-300"
             >
               {isSubmitting ? (

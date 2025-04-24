@@ -24,7 +24,7 @@ export async function getTasks(
   const userId = await getUserFromRequest(req);
 
   const result = await query<Task>(
-    'SELECT * FROM tasks WHERE is_deleted = false AND user_id = $1 ORDER BY created_at DESC',
+    'SELECT * FROM tasks WHERE is_deleted = false AND user_id = $1 AND is_completed = false ORDER BY created_at DESC',
     [userId]
   );
   return result.rows;

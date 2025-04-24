@@ -10,7 +10,6 @@ import TaskFormModal from '@/components/tasks/TaskFormModel';
 export default function TasksPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
